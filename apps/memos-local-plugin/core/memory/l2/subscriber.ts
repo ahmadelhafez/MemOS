@@ -30,7 +30,7 @@ export interface L2SubscriberDeps {
   llm: LlmClient | null;
   log: Logger;
   config: L2Config;
-  thresholds: { minSupport: number; minGain: number; archiveGain: number };
+  thresholds: { minSupport: number; minGain: number; archiveGain: number; proposalOnly?: boolean };
 }
 
 export interface L2SubscriberHandle {

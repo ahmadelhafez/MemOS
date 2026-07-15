@@ -86,6 +86,8 @@ export interface SkillCrystallizationDraft {
  * Config slice the skill module reads from `algorithm.skill.*`.
  */
 export interface SkillConfig {
+  /** Keep learned skills as candidates until the host records human approval. */
+  proposalOnly?: boolean;
   minSupport: number;
   minGain: number;
   /**

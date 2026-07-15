@@ -83,6 +83,22 @@ describe("memory/l2/gain", () => {
     ).toBe("active");
   });
 
+  it("keeps a qualified policy as a candidate in proposal-only mode", () => {
+    expect(
+      nextStatus({
+        currentStatus: "candidate",
+        support: 30,
+        gain: 0.9,
+        thresholds: {
+          minSupport: 1,
+          minGain: 0.01,
+          archiveGain: -0.05,
+          proposalOnly: true,
+        },
+      }),
+    ).toBe("candidate");
+  });
+
   it("nextStatus keeps candidate if gain insufficient", () => {
     expect(
       nextStatus({

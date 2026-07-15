@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { promises as fs } from "node:fs";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 
 import { DEFAULT_CONFIG, loadConfig, resolveConfig, resolveHome } from "../../../core/config/index.js";
 import { makeTmpHome } from "../../helpers/tmp-home.js";
@@ -89,6 +89,11 @@ viewer:
       algorithm: { lightweightMemory: { enabled: false } },
     });
     expect(cfg.algorithm.lightweightMemory.enabled).toBe(false);
+  });
+
+  it("defaults proposal-only mode off and accepts an explicit authority boundary", () => {
+    expect(resolveConfig({}).algorithm.proposalOnly).toBe(false);
+    expect(resolveConfig({ algorithm: { proposalOnly: true } }).algorithm.proposalOnly).toBe(true);
   });
 
   it("does not expose embedding dimensions as user config", () => {
@@ -183,6 +188,6 @@ describe("config/loadConfig MEMOS_HOME override", () => {
   it("respects MEMOS_HOME at the resolveHome level", () => {
     process.env["MEMOS_HOME"] = "/tmp/forced/h1";
     const home = resolveHome("openclaw");
-    expect(home.configFile).toBe(join("/tmp/forced/h1", "config.yaml"));
+    expect(home.configFile).toBe(resolve("/tmp/forced/h1", "config.yaml"));
   });
 });

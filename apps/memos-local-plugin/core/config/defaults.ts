@@ -70,6 +70,7 @@ export const DEFAULT_CONFIG: ResolvedConfig = {
     ftsTokenizer: "trigram",
   },
   algorithm: {
+    proposalOnly: false,
     lightweightMemory: {
       enabled: true,
     },

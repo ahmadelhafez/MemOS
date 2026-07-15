@@ -1,0 +1,4 @@
+algorithm:
+  proposalOnly: true
+  lightweightMemory:
+    enabled: false

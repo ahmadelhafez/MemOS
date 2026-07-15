@@ -115,6 +115,7 @@ export function extractAlgorithmConfig(
 ): PipelineAlgorithmConfig {
   const alg = deps.config.algorithm;
   return {
+    proposalOnly: alg.proposalOnly,
     lightweightMemory: {
       enabled: alg.lightweightMemory.enabled,
     },
@@ -295,6 +296,7 @@ export function buildPipelineSubscribers(
       minSupport: algorithm.skill.minSupport,
       minGain: algorithm.skill.minGain,
       archiveGain: deps.config.algorithm.l2Induction.archiveGain,
+      proposalOnly: algorithm.proposalOnly,
     },
   });
 
@@ -317,7 +319,7 @@ export function buildPipelineSubscribers(
     l2Bus: buses.l2,
     rewardBus: buses.reward,
     log: log.child({ channel: "core.skill" }),
-    config: algorithm.skill,
+    config: { ...algorithm.skill, proposalOnly: algorithm.proposalOnly },
   });
 
   const feedbackHandle = attachFeedbackSubscriber({

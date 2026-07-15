@@ -28,6 +28,7 @@ export interface FeedbackExperienceDeps {
   embedder: Embedder | null;
   llm?: LlmClient;
   namespace: RuntimeNamespace;
+  proposalOnly?: boolean;
   now?: () => number;
 }
 
@@ -101,6 +102,7 @@ export async function runFeedbackExperience(
       sourceFeedbackIds,
       vec: vec ?? existing.vec,
       now,
+      proposalOnly: deps.proposalOnly === true,
     });
     deps.repos.policies.upsert(merged);
     if (!merged.vec) enqueueEmbedding(merged.id, draft.vectorText, now, deps);
@@ -118,7 +120,7 @@ export async function runFeedbackExperience(
     boundary: draft.boundary,
     support: 1,
     gain: Math.max(0.02, draft.salience),
-    status: draft.salience >= 0.5 ? "active" : "candidate",
+    status: deps.proposalOnly ? "candidate" : draft.salience >= 0.5 ? "active" : "candidate",
     experienceType: draft.type,
     evidencePolarity: draft.polarity,
     salience: draft.salience,
@@ -391,6 +393,7 @@ function mergePolicy(
     sourceFeedbackIds: readonly FeedbackId[];
     vec: EmbeddingVector | null;
     now: number;
+    proposalOnly: boolean;
   },
 ): PolicyRow {
   const existingSkillEligible = existing.skillEligible !== false;
@@ -400,7 +403,11 @@ function mergePolicy(
     ...existing,
     support: Math.max(1, existing.support) + 1,
     gain: Math.max(existing.gain, draft.salience, 0.02),
-    status: existing.status === "archived" ? existing.status : "active",
+    status: existing.status === "archived"
+      ? existing.status
+      : patch.proposalOnly
+        ? "candidate"
+        : "active",
     experienceType: skillEligible && polarity === "mixed"
       ? "repair_validated"
       : existing.experienceType ?? draft.type,

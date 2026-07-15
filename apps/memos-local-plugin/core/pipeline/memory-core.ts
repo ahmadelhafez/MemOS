@@ -2236,6 +2236,7 @@ export function createMemoryCore(
           embedder: handle.embedder,
           llm: handle.llm ?? undefined,
           namespace: handle.namespace,
+          proposalOnly: handle.config.algorithm.proposalOnly,
           now: Date.now,
         },
       );

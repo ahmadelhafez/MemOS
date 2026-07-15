@@ -1,6 +1,11 @@
 import { describe, it, expect } from "vitest";
 
-import { applyFeedback, recomputeEta, shouldArchiveIdle } from "../../../core/skill/lifecycle.js";
+import {
+  applyFeedback,
+  recomputeEta,
+  shouldArchiveIdle,
+  shouldPromoteCandidate,
+} from "../../../core/skill/lifecycle.js";
 import type { PolicyRow, SkillRow } from "../../../core/types.js";
 import { makeSkillConfig, NOW } from "./_helpers.js";
 
@@ -67,6 +72,21 @@ describe("skill/lifecycle", () => {
     const after = applyFeedback(s, "trial.pass", cfg);
     expect(after.status).toBe("active");
     expect(after.transition).toBe("promoted");
+  });
+
+  it("never promotes a candidate in proposal-only mode", () => {
+    const cfg = makeSkillConfig({
+      candidateTrials: 1,
+      minEtaForRetrieval: 0.1,
+      proposalOnly: true,
+    });
+    const skill = mkSkill({ status: "candidate", eta: 0.9 });
+
+    const after = applyFeedback(skill, "trial.pass", cfg);
+
+    expect(after.status).toBe("candidate");
+    expect(after.transition).toBeUndefined();
+    expect(shouldPromoteCandidate({ ...skill, ...after }, cfg)).toBe(false);
   });
 
   it("archives when trial ratio cannot meet the floor after candidate trials", () => {

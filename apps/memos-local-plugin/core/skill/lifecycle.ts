@@ -73,7 +73,7 @@ function applyTrial(
   let status: SkillRow["status"] = skill.status;
   let transition: SkillLifecycleTransition | undefined;
 
-  if (status === "candidate" && trialsAttempted >= cfg.candidateTrials) {
+  if (!cfg.proposalOnly && status === "candidate" && trialsAttempted >= cfg.candidateTrials) {
     if (eta >= cfg.minEtaForRetrieval) {
       status = "active";
       transition = "promoted";
@@ -212,6 +212,7 @@ export function shouldPromoteCandidate(
   skill: SkillRow,
   cfg: SkillConfig,
 ): boolean {
+  if (cfg.proposalOnly) return false;
   if (skill.status !== "candidate") return false;
   if (hasDecisionGuidance(skill)) return false;
   return skill.eta >= cfg.minEtaForRetrieval;

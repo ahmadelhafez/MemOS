@@ -104,6 +104,12 @@ const StorageSchema = Type.Object({
 }, { default: {} });
 
 const AlgorithmSchema = Type.Object({
+  /**
+   * Authority boundary for host applications that require explicit human
+   * approval. The learning pipeline may collect and score candidates, but it
+   * cannot promote policies, feedback experiences, or skills to `active`.
+   */
+  proposalOnly: Bool(false),
   lightweightMemory: Type.Object({
     /**
      * Low-cost mode for users who only want raw conversation memory +

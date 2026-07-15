@@ -151,11 +151,13 @@ export function nextStatus(args: {
     minSupport: number;
     minGain: number;
     archiveGain: number;
+    proposalOnly?: boolean;
   };
 }): "candidate" | "active" | "archived" {
   const { currentStatus: status, support, gain, thresholds } = args;
   if (status === "archived") return "archived";
   if (status === "candidate") {
+    if (thresholds.proposalOnly) return "candidate";
     if (support >= thresholds.minSupport && gain >= thresholds.minGain) return "active";
     return "candidate";
   }
@@ -176,7 +178,7 @@ export function applyGain(args: {
   gain: GainResult;
   deltaSupport: number;
   currentStatus: "candidate" | "active" | "archived";
-  thresholds: { minSupport: number; minGain: number; archiveGain: number };
+  thresholds: { minSupport: number; minGain: number; archiveGain: number; proposalOnly?: boolean };
   persist: ApplyGainPersist;
   currentSupport: number;
   now?: number;

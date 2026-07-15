@@ -128,6 +128,25 @@ describe("feedback experience builder", () => {
     expect(recalled.map((c) => c.refId)).toContain(result.policyId);
   });
 
+  it("keeps high-salience feedback as a candidate in proposal-only mode", async () => {
+    const result = await runFeedbackExperience(
+      {
+        feedback: feedback(),
+        episode: { id: "ep_feedback" as EpisodeId, traceIds: [trace.id], rTask: -1 },
+        trace,
+      },
+      {
+        repos: handle.repos,
+        embedder: fakeEmbedder(),
+        namespace,
+        proposalOnly: true,
+        now: () => NOW,
+      },
+    );
+
+    expect(handle.repos.policies.getById(result.policyId!)?.status).toBe("candidate");
+  });
+
   it("treats a partial verifier pass (3/4, reward 0) as a failure, not a success_pattern", async () => {
     const result = await runFeedbackExperience(
       {

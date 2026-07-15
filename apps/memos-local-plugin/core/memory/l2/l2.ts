@@ -55,7 +55,7 @@ export interface RunL2Deps {
   bus?: L2EventBus;
   config: L2Config;
   /** Thresholds that live alongside config.algorithm.skill — passed through. */
-  thresholds: { minSupport: number; minGain: number; archiveGain: number };
+  thresholds: { minSupport: number; minGain: number; archiveGain: number; proposalOnly?: boolean };
 }
 
 export async function runL2(
