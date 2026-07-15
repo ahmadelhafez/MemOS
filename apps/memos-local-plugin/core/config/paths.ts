@@ -85,5 +85,5 @@ export function expandHome(p: string): string {
     out = out.replace(/^~/, homedir());
   }
   out = out.replace(/\{HOME\}/g, homedir());
-  return out;
+  return pathResolve(out);
 }

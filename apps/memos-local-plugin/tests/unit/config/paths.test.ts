@@ -27,28 +27,29 @@ describe("config/paths", () => {
   it("MEMOS_HOME wins over the per-agent default", () => {
     process.env["MEMOS_HOME"] = "/tmp/forced/memos";
     const home = resolveHome("hermes");
-    expect(home.root).toBe("/tmp/forced/memos");
-    expect(home.configFile).toBe("/tmp/forced/memos/config.yaml");
+    const expected = pathResolve("/tmp/forced/memos");
+    expect(home.root).toBe(expected);
+    expect(home.configFile).toBe(join(expected, "config.yaml"));
   });
 
   it("MEMOS_CONFIG_FILE without MEMOS_HOME derives root from the file's parent", () => {
     delete process.env["MEMOS_HOME"];
     process.env["MEMOS_CONFIG_FILE"] = "/var/etc/some.yaml";
     const home = resolveHome("openclaw");
-    expect(home.configFile).toBe("/var/etc/some.yaml");
-    expect(home.root).toBe("/var/etc");
+    expect(home.configFile).toBe(pathResolve("/var/etc/some.yaml"));
+    expect(home.root).toBe(pathResolve("/var/etc"));
   });
 
   it("expandHome resolves leading ~ and {HOME} placeholder", () => {
-    expect(expandHome("~/foo/bar")).toBe(join(homedir(), "foo/bar"));
-    expect(expandHome("{HOME}/.x/y")).toBe(join(homedir(), ".x/y"));
-    expect(expandHome("/abs/already")).toBe("/abs/already");
+    expect(expandHome("~/foo/bar")).toBe(join(homedir(), "foo", "bar"));
+    expect(expandHome("{HOME}/.x/y")).toBe(join(homedir(), ".x", "y"));
+    expect(expandHome("/abs/already")).toBe(pathResolve("/abs/already"));
   });
 
   it("falls back gracefully for unknown agent kinds", () => {
     delete process.env["MEMOS_HOME"];
     delete process.env["MEMOS_CONFIG_FILE"];
     const home = resolveHome("custom");
-    expect(home.root.endsWith(".custom/memos-plugin")).toBe(true);
+    expect(home.root.endsWith(join(".custom", "memos-plugin"))).toBe(true);
   });
 });
