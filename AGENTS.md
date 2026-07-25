@@ -13,7 +13,7 @@
 - **License**: Apache-2.0
 - **Top-level package**: `src/memos/`. Distribution name `MemoryOS`; import name `memos`.
 - **CLI**: `memos` (entry `memos.cli:main`)
-- **API service**: `memos.api.start_api:app`
+- **API service**: `memos.api.server_api:app`
 
 ## Repository Layout
 
@@ -61,8 +61,9 @@ Common `MOS` methods: `MOS.simple()` (auto-configure from env), `register_mem_cu
 
 ### API entry
 
-- ASGI app: `memos.api.start_api:app`
-- Routers: `src/memos/api/routers/` (`admin_router`, `product_router`, `server_router`)
+- ASGI app: `memos.api.server_api:app` (this is what `make serve` runs). `memos.api.server_api_ext:app` is a
+  second app that mounts the same routes plus security headers, rate limiting and `admin_router`.
+- Routers: `src/memos/api/routers/` (`server_router`, `admin_router`)
 - OpenAPI contract: `docs/openapi.json` (must run `make openapi` after touching the API)
 
 ## Import Patterns
@@ -123,11 +124,16 @@ Mirror any existing provider in the same category:
 
 ### Never do (IMPORTANT)
 
-- **Never** commit `.env`, `private/`, `.private-paths`, `tmp/`, `*.log`, secrets, tokens, or model credentials.
+- **Never** commit `.env`, `private/`, `tmp/`, `*.log`, secrets, tokens, or model credentials.
 - Do not log or include real API keys, raw user data, or vector contents in tests/fixtures.
-- Do not skip `pre-commit` or push with `--no-verify` (the `scripts/check-public-push.sh` pre-push hook is enforced).
+- Do not skip `pre-commit` or push with `--no-verify`. Note that only the `pre-commit` hook type is installed
+  (`make install` runs `pre-commit install --install-hooks`); there is no pre-push secret scan, so checking a diff
+  for credentials before pushing is a manual responsibility.
 - Do not claim tests pass without real pytest output as evidence.
-- Do not add third-party dependencies to core `dependencies` — they must go into optional extras.
+- Do not add a dependency for an optional backend or feature to core `dependencies` — those belong in an extras
+  group, behind a guarded import. Core `dependencies` is only for packages `import memos` cannot start without;
+  if you add a module-scope import of a new package, it must be declared there rather than left to resolve
+  transitively.
 - Do not run wide-scope `rm -rf` outside `src/`; do not `git push --force` or `git reset --hard origin/*`.
 
 ## Code Style
@@ -151,5 +157,5 @@ Mirror any existing provider in the same category:
 - Commits: Conventional Commits (`feat:` / `fix:` / `chore:` / `refactor:` / `docs:`), subject line ≤ 72 chars.
 - Branches: `feat/<slug>` / `fix/<slug>` / `dev-YYYYMMDD-v<version>`.
 - `main` is protected — all changes go through PRs; never force-push to `main`; do not skip git hooks.
-- Do not commit paths listed in `.private-paths`.
+- Treat anything matched by `.gitignore` as deliberately excluded; do not force-add it.
 - The PR template lives at `.github/PULL_REQUEST_TEMPLATE.md` — its checklist must be fully ticked.
