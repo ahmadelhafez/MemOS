@@ -162,8 +162,15 @@ cd MemOS
 cp docker/.env.example .env          # fill in your API keys in .env
 # Ensure Neo4j and Qdrant are running, then:
 cd src
-uvicorn memos.api.server_api:app --host 0.0.0.0 --port 8000 --workers 1
+uvicorn memos.api.server_api:app --host 127.0.0.1 --port 8000 --workers 1
 ```
+
+> [!WARNING]
+> **The self-hosted server has no authentication.** Every route on `memos.api.server_api` is unauthenticated, and
+> `user_id` is supplied by the caller in the request body — so anyone who can reach the port can read or write any
+> user's memories by changing that value. Bind it to `127.0.0.1` as shown above and put an authenticating reverse
+> proxy or API gateway in front of it before exposing it to a network. Do not run it on `0.0.0.0` on a shared or
+> public host. (The hosted API at `memos.memtensor.cn` is separate and does require an API key.)
 
 See `[docker/.env.example](./docker/.env.example)` for all configuration options (LLM provider, embedder, vector DB, graph DB, scheduler). The full deployment guide is at [https://memos-docs.openmem.net/open_source/getting_started/rest_api_server/](https://memos-docs.openmem.net/open_source/getting_started/rest_api_server/).
 

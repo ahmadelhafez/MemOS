@@ -165,8 +165,14 @@ cd MemOS
 cp docker/.env.example .env          # 在 .env 中填入你的 API key
 # 确保 Neo4j 和 Qdrant 已启动，然后：
 cd src
-uvicorn memos.api.server_api:app --host 0.0.0.0 --port 8000 --workers 1
+uvicorn memos.api.server_api:app --host 127.0.0.1 --port 8000 --workers 1
 ```
+
+> [!WARNING]
+> **自部署的服务端没有任何鉴权。** `memos.api.server_api` 的所有路由都不校验身份，且 `user_id` 由调用方在请求体中直接指定
+> —— 因此任何能访问该端口的人，只要改一下这个字段，就可以读写任意用户的记忆。请按上面的方式绑定到 `127.0.0.1`，并在其前面
+> 部署带鉴权的反向代理或 API 网关，然后再对外提供服务。不要在共享或公网主机上监听 `0.0.0.0`。
+> （`memos.memtensor.cn` 上的云端 API 是另一套服务，它需要 API key。）
 
 所有配置项（LLM、embedder、向量库、图库、调度器）见 `[docker/.env.example](./docker/.env.example)`。完整部署指南：[https://memos-docs.openmem.net/open_source/getting_started/rest_api_server/](https://memos-docs.openmem.net/open_source/getting_started/rest_api_server/)。
 
